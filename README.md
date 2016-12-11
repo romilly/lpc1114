@@ -1,5 +1,5 @@
 # LPC1114
-### FORTH development using LPC1114 DIP ARM Chip
+### FORTH development using LPC1114
 
 The nxp LPC1114 is an ARM processor in a breadboard-friendly 28-pin DIP.
 
