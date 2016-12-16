@@ -14,6 +14,14 @@ The project was inspired by two great Hackaday articles:
 
 [Go Forth on a Breadboard](https://hackaday.com/2015/08/30/go-forth-on-a-breadboard/)
 
+Here's a picture of my first breadboarded version:
+
+![LPC1114 on a breadboard](images/v1.0-cropped.jpg)
+
+And here's the terminal window showing the installation and test of mecrisp FORTH:
+
+![Terminal session](images/term.png)
+
 
 
 
