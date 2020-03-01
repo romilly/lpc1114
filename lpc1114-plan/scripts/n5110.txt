@@ -1,0 +1,16 @@
+\ control nokia 5110 screen using SPI
+
+0 8 constant DC
+
+: scr-init
+   spi-init
+   DC gpio
+   DC dir>out
+;
+
+: command (  b -- ) DC ioc! +spi >spi -spi DC ios! ;
+
+: data ( b -- ) DC ios! +spi >spi -spi ;
+
+
+

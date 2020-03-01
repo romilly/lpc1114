@@ -1,0 +1,68 @@
+\ GPIO Pin configuration, direction set, read and write
+
+: pindex ( port pin -- u ) swap 12 * +  2* ; \ find index into iocons table
+
+create iocons
+    0   , 0         , $C0 , $40044010 , $C0 , $4004401C , $C0 , $4004402C , $C0 , $40044030 , $C0 , $40044034 ,
+    $C0 , $4004404C , $C0 , $40044050 , $C0 , $40044060 , $C0 , $40044064 , $C1 , $40044068 , $C1 , $40044074 ,
+    $C1 , $40044078 , $C0 , $4004407C , $C1 , $40044080 , $C1 , $40044090 , $C0 , $40044094 , $C0 , $400440A0 ,
+    $C0 , $400440A4 , $C0 , $400440A8 , $C0 , $40044014 , $C0 , $40044038 , 0   , 0         , 0   , 0
+
+: gpio ( port pin -- u a ) \ configure pin to be GPIO without pull-ups
+    pindex cells iocons + dup @ \ find gpio code
+    swap cell+ @   \ find io_config address
+    ! \ set address to contain code
+;
+
+: masked-set ( a mask -- ) over @ or swap ! ;
+: nand ( mask u -- umasked ) swap not and ;
+: masked-clear ( a mask  -- ) over @ nand swap ! ;
+
+create gpio-bases $50000000 , $50010000 , $50020000 ,
+
+: gpio-base cells gpio-bases + @ ; \ find gpio base address for port
+
+: one-hot ( index -- bits ) 1 swap lshift ;
+
+: dir-mask ( port pin -- a mask )
+  swap gpio-base $8000 + \ get gpio-base for port
+  swap one-hot
+;
+
+: dir>in ( port pin -- ) dir-mask masked-clear ;
+: dir>out ( port pin -- ) dir-mask masked-set ;
+
+4095 constant o-mask \  bits 11:0 all 1
+
+: data-address ( port pin -- a ) one-hot 2* 2* swap gpio-base + ; \ find address that will set or clear an output
+
+: >high ( port pin -- ) data-address o-mask swap ! ;  \ set (output) pin high
+: >low ( port pin -- ) data-address 0 swap ! ; \ set (output) pin low
+: <read ( port pin -- ) data-address @ ; \ read input pin (returns 0 or non-zero val)
+
+
+\ Blink a LED on P1.8
+
+: blinky ( -- )
+  1 8 gpio \ Set P1.8 as GPIO without Pullup/Pulldown. $C0 are reserved bits that must be set.
+  1 8 dir>out \ Set P1.8 as Output
+
+  begin
+    1 8 >high
+    1000000 0 do loop
+    1 8 >low
+    1000000 0 do loop
+  key? until
+;
+
+\ Blink a LED on P1.8 when button on P0.7 is pressed
+
+: button ( -- )
+  1 8 gpio \ Set P1.8 as GPIO without Pullup/Pulldown. $C0 are reserved bits that must be set.
+  1 8 dir>out \ Set P1.8 as Output
+
+  begin
+    0 7 <read if 1 8 >low else 1 8 >high then
+    1000000 0 do loop
+  key? until
+;

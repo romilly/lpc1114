@@ -1,0 +1,18 @@
+
+\ Blink a LED on P1.8 when button on P0.7 is pressed
+
+$40044014 constant IOCON_PIO1_8
+$50003FFC constant GPIO0_DATA
+$50013FFC constant GPIO1_DATA
+$50018000 constant GPIO1_DIR
+
+: button ( -- )
+  $C0 IOCON_PIO1_8 ! \ Set P1.8 as GPIO without Pullup/Pulldown. $C0 are reserved bits that must be set.
+  256 GPIO1_DIR    ! \ Set P1.8 as Output
+
+  begin
+    GPIO0_DATA @ 128 and if 0 else 256 then GPIO1_DATA !
+    1000000 0 do loop
+  key? until
+;
+

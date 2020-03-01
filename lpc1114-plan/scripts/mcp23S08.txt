@@ -1,0 +1,35 @@
+\ initial test version
+\ assume address is 0
+
+
+$40 constant write-address
+$41 constant read-address
+
+$09 constant GPIOR
+$00 constant IODIR
+
+
+
+: read-reg ( reg -- value ) +spi read-address >spi >spi spi>  -spi ;
+
+: write-reg ( value reg -- ) +spi write-address >spi >spi >spi -spi ;
+
+: write-iodir ( value -- ) IODIR write-reg ;
+
+: read-iodir ( -- value ) IODIR read-reg ;
+
+: read-pins ( -- value ) GPIOR read-reg ;
+
+: write-pins ( bits -- ) GPIOR write-reg ;
+
+: cycle \ count up to $ffff - makes a nice display on a led bar
+  spi-init
+  0 write-iodir
+  begin
+       $ffff 0 do
+          i write-pins
+          300000 0 do loop
+       loop
+  key? until
+;
+

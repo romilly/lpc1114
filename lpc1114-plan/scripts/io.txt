@@ -1,0 +1,64 @@
+\ GPIO Pin configuration, direction set, read and write
+
+\ merge names from embello into my code
+
+compiletoflash
+
+: pindex ( port pin -- u ) swap 16 * +  2* ; \ find index into iocons table
+
+: bit ( index -- s ) 1 swap lshift ;
+
+\ Following defs adapted from embello/mecrisp
+
+: io ( port# pin# -- pin )  \ combine port and pin into single int
+  swap 4 lshift or ;
+
+: io# ( pin -- u )  \ convert pin to bit position
+  $0F and ;
+
+: io-mask ( pin -- u )  \ convert pin to shifted bit mask
+  io# bit 2 lshift ;
+
+: io-port ( pin -- u )  \ convert pin to port number
+  4 rshift ;
+
+create iocons
+    0   , 0         , $C0 , $40044010 , $C0 , $4004401C , $C0 , $4004402C ,
+    $00 , $40044030 , $00 , $40044034 , $C0 , $4004404C , $C0 , $40044050 ,
+    $C0 , $40044060 , $C0 , $40044064 , $C1 , $40044068 , $C1 , $40044074 ,
+    0   , 0         , 0   , 0         , 0   , 0         , 0   , 0         , \ No more pins on port 0
+    $C1 , $40044078 , $C0 , $4004407C , $C1 , $40044080 , $C1 , $40044090 ,
+    $C0 , $40044094 , $C0 , $400440A0 , $C0 , $400440A4 , $C0 , $400440A8 ,
+    $C0 , $40044014 , $C0 , $40044038 , 0   , 0         , 0   , 0         , \ No more pins on port 1
+
+: gpio ( pin -- ) \ configure pin to be GPIO without pull-ups
+    2* cells iocons + dup @ \ find gpio code
+    swap cell+ @   \ find io_config address
+    ! \ set address to contain code
+;
+
+: masked-set ( a mask -- ) over @ or swap ;
+: nand ( mask u -- umasked ) swap not and ;
+: masked-clear ( a mask  -- ) over @ nand swap ;
+
+create gpio-bases $50000000 , $50010000 , $50020000 ,
+
+: gpio-base ( port -- a ) cells gpio-bases + @ ; \ find gpio base address for port
+
+: dir-mask ( pin -- a mask )
+  dup io-port gpio-base $8000 + swap io# bit \ get address, mask for port
+;
+
+: dir>in ( pin -- ) dir-mask masked-clear ! ;
+: dir>out ( pin -- ) dir-mask masked-set  ! ;
+
+4095 constant o-mask \  bits 11:0 all 1
+
+: data-address ( pin -- a ) dup io-port swap io-mask swap gpio-base +  ; \ find address that will set or clear an output
+
+: ios! ( pin -- ) data-address o-mask swap ! ;  \ set (output) pin high
+: ioc! ( pin -- ) data-address 0 swap ! ; \ set (output) pin low
+: io@ ( pin -- ) data-address @ if 1 else 0 then ; \ read input pin (returns 0 or 1 )
+: io! ( f pin -- ) swap if ios! else ioc! then ; \ set pin to flag
+
+compiletoram

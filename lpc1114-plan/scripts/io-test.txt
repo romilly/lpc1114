@@ -1,0 +1,33 @@
+
+\ Blink a LED on P1.8
+
+
+1 8 io constant p1.8
+
+
+: blinky ( -- )
+  p1.8 gpio \ Set P1.8 as GPIO without Pullup/Pulldown. $C0 are reserved s that must be set.
+  p1.8 dir>out \ Set P1.8 as Output
+
+  begin
+    p1.8 ios!
+    1000000 0 do loop
+    p1.8 ioc!
+    1000000 0 do loop
+  key? until
+;
+
+\ Blink a LED on P1.8 when button on P0.7 is pressed
+
+0 7 io constant p0.7
+
+: button ( -- )
+  p1.8 gpio \ Set P1.8 as GPIO without Pullup/Pulldown. $C0 are reserved bits that must be set.
+  p1.8 dir>out \ Set P1.8 as Output
+
+  begin
+    p0.7 io@ if p1.8 ioc! else p1.8 ios! then
+    1000000 0 do loop
+  key? until
+;
+

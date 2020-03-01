@@ -1,0 +1,32 @@
+\ Independently blink  LEDs on P1.8, P1.9
+
+
+$40044038 constant IOCON_PIO1_9
+$40044014 constant IOCON_PIO1_8
+$50010800 constant P1_9 \ MASK FOR P1.9
+$50010400 constant P1_8 \ MASK FOR P1.8
+$50018000 constant GPIO1_DIR
+
+: 9-on  ( -- )  512 P1_9 ! ;
+: 9-off ( -- )  0 P1_9 ! ;
+
+
+: 8-on ( -- ) 256 P1_8 ! ;
+: 8-off ( -- ) 0 P1_8 ! ;
+
+: gpio-init ( -- )
+   $C0 IOCON_PIO1_9 ! \ Set P1.8 as GPIO without Pullup/Pulldown.
+   $C0 IOCON_PIO1_8 ! \ Set P1.8 as GPIO without Pullup/Pulldown.
+   256 512 + GPIO1_DIR    ! \ Set P1.8, P1.9 as Output
+   8-off
+   9-off
+;
+
+
+
+gpio-init
+
+
+
+
+

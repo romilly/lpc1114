@@ -1,0 +1,3 @@
+lpc21isp -bin HaD1114Demo_LPC1114.bin /dev/ttyUSB0 115200 48000
+lpc21isp -bin mecrisp-stellaris-lpc1114fn28.bin /dev/ttyUSB0 115200 48000
+lpc21isp -termonly -control x /dev/ttyUSB0 115200 0

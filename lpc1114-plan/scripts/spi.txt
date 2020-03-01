@@ -1,0 +1,42 @@
+\ bit-banged SPI driver
+
+\ [ifndef] ssel  PA4 variable ssel  [then]  \ can be changed at run time
+\ [ifndef] SCLK  PA5 constant SCLK  [then]
+\ [ifndef] MISO  PA6 constant MISO  [then]
+\ [ifndef] MOSI  PA7 constant MOSI  [then]
+
+\ redefined for LPC1114
+
+
+1 8 io constant ssel \ Arduino D10 - white
+1 9 io constant SCLK \ Arduino D13 - blue
+0 7 io constant MISO \ Arduino D12 - green
+0 3 io constant MOSI \ Arduino D11 - yellow
+
+
+
+: +spi ( -- ) ssel ioc! ;  \ select SPI (active low)
+: -spi ( -- ) ssel ios! ;  \ deselect SPI
+
+: >spi> ( c -- c )  \ bit-banged SPI, 8 bits
+  8 0 do
+    dup $80 and MOSI io!
+    SCLK ios!
+    shl
+    MISO io@ or
+    SCLK ioc!
+  loop
+  $FF and ;
+
+\ single byte transfers
+: spi> ( -- c ) 0 >spi> ;  \ read byte from SPI
+: >spi ( c -- ) >spi> drop ;  \ write byte to SPI
+
+: spi-init ( -- )  \ set up bit-banged SPI
+    ssel gpio ssel dir>out -spi
+    SCLK gpio SCLK dir>out
+    MISO gpio
+    MOSI gpio MOSI dir>out
+;
+
+ : spis ( c -- ) +spi >spi -spi ; \ send one character
