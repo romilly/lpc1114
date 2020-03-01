@@ -34,11 +34,15 @@ It's easily programmed using a USB-to-Serial cable, and there is a pre-built FOR
 I'm currently exploring the combination and will document the [hardware construction](hardware.md) and [software installation](software.md) in this GitHub
 project.
 
-The project was inspired by two great Hackaday articles:
+The project was inspired by two great Hackaday articles, and
+an excellent post from Jen-Claud Wippler on his jeelabs site:
 
 [ARMing a Breadboard](http://hackaday.com/2015/10/09/arming-a-breadboard-everyone-should-program-an-arm/)
 
 [Go Forth on a Breadboard](https://hackaday.com/2015/08/30/go-forth-on-a-breadboard/)
+
+[Forth on a DIP](http://jeelabs.org/2015/07/22/forth-on-a-dip/)
+
 
 ### Current status
 
@@ -46,9 +50,10 @@ Here's a picture of my first breadboarded version:
 
 ![LPC1114 on a breadboard](images/v1.0-cropped.jpg)
 
-And here's the terminal window showing the installation and test of mecrisp FORTH:
+Here's version 2.0, built on one of Adafruit's wonderful Perma-proto boards.
 
-![Terminal session](images/term.png)
+![LPC1114 on Perma-proto](images/v2.0.jpg)
+
 
 ### <a name="bluepill"></a> Good news part 2 - the *Blue Pill* alternative
 
